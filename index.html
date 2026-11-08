@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Android Development Finals Examination</title>
+<style>
+:root{--blue:#155eef;--blue2:#0b4acb;--ink:#17243b;--muted:#66758c;--line:#dce5f1;--bg:#f3f7fc;--white:#fff;--green:#16834a;--red:#c63838}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Times New Roman",Times,serif;font-size:17px;line-height:1.45}
+button{font:inherit;cursor:pointer}
+button:focus-visible,.choice:focus-within{outline:3px solid #8bb8ff;outline-offset:2px}
+.shell{max-width:1180px;margin:0 auto;padding:22px}
+header{background:linear-gradient(120deg,#1049ad,#2878e8);color:#fff;border-radius:18px;padding:24px 26px;box-shadow:0 10px 26px #153c751c}
+header h1{font-size:clamp(25px,4vw,34px);line-height:1.12;margin:0 0 7px}
+.sub{opacity:.9}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.stat{background:#ffffff20;border:1px solid #ffffff38;border-radius:10px;padding:8px 13px}
+.stat b{display:block;font-size:19px}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:18px 0 12px;flex-wrap:wrap}
+.timer{font-size:21px;font-weight:bold;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 15px;box-shadow:0 3px 12px #183b6810}
+.timer.warn{color:var(--red);border-color:#efb6b6}
+.progress-card,.panel{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 5px 18px #183b6809}
+.progress-meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);margin-bottom:9px}
+.track{height:10px;border-radius:99px;background:#e8eef7;overflow:hidden}
+.track>div{height:100%;width:0;background:linear-gradient(90deg,#155eef,#5ba3ff);transition:width .2s}
+.layout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:18px;margin-top:18px}
+.nav h2,.question h2{margin:0 0 12px;font-size:22px}
+.nav-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.navbtn{border:1px solid var(--line);background:#fff;border-radius:8px;min-height:38px;color:var(--ink)}
+.navbtn.answered{background:#e8f2ff;border-color:#8dbaff;color:#1049ad;font-weight:bold}
+.navbtn.current{outline:2px solid var(--blue);outline-offset:1px}
+.legend{font-size:14px;color:var(--muted);margin-top:12px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#dce5f1;margin:0 5px 0 10px}.dot.a{background:#78aef8}.dot.c{background:var(--blue)}
+.question{min-height:390px}
+.kicker{font-size:14px;color:var(--blue);font-weight:bold;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.qtext{font-size:21px;font-weight:bold;margin:0 0 19px;line-height:1.35}
+.choices{display:grid;gap:10px}
+.choice{display:flex;align-items:flex-start;gap:12px;border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;background:#fff;cursor:pointer;transition:.15s}
+.choice:hover{border-color:#8dbaff;background:#f8fbff}
+.choice.selected{border-color:var(--blue);background:#edf5ff;box-shadow:inset 0 0 0 1px var(--blue)}
+.choice input{margin-top:4px;accent-color:var(--blue);width:17px;height:17px;flex:0 0 auto}
+.choice span{flex:1}
+.controls{display:flex;justify-content:space-between;gap:10px;margin-top:20px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);border-radius:10px;padding:10px 17px;background:#fff;color:var(--ink);font-weight:bold}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue2)}
+.btn.danger{background:#fff5f5;border-color:#e8bcbc;color:#a92323}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.section-note{font-size:14px;color:var(--muted);margin-top:13px}
+.hidden{display:none!important}
+.result-score{font-size:42px;color:var(--blue);font-weight:bold;margin:6px 0}
+.result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+.result-tile{padding:13px;background:#f5f8fd;border:1px solid var(--line);border-radius:11px}
+.result-tile b{display:block;font-size:23px}
+.review-item{border:1px solid var(--line);border-radius:12px;padding:15px;margin:12px 0;background:#fff}
+.review-item h3{font-size:18px;margin:0 0 8px}
+.review-item p{margin:5px 0}
+.correct{color:var(--green);font-weight:bold}.incorrect{color:var(--red);font-weight:bold}
+.explanation{background:#f4f8ff;border-left:3px solid #78aef8;padding:9px 12px;margin-top:9px;color:#35465e}
+.modal-backdrop{position:fixed;inset:0;background:#101d32a8;display:grid;place-items:center;padding:18px;z-index:10}
+.modal{max-width:440px;width:100%;background:#fff;border-radius:16px;padding:22px;box-shadow:0 18px 55px #0003}
+.modal h2{margin:0 0 8px}.modal p{color:var(--muted)}
+.modal-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;margin-top:18px}
+footer{text-align:center;color:var(--muted);font-size:14px;margin:22px 0 5px}
+@media(max-width:760px){.shell{padding:12px}.layout{grid-template-columns:1fr}.nav{order:2}.question{order:1;min-height:0}.nav-grid{grid-template-columns:repeat(10,minmax(0,1fr))}.result-grid{grid-template-columns:repeat(2,1fr)}header{padding:20px}.qtext{font-size:19px}}
+@media(max-width:420px){body{font-size:16px}.nav-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.progress-card,.panel{padding:14px}.choice{padding:12px}.controls .btn{flex:1}.result-score{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header>
+  <h1>Android Development Finals Examination</h1>
+  <div class="sub">Examora-compatible standalone examination</div>
+  <div class="stats"><div class="stat"><b>50</b>Total Questions</div><div class="stat"><b>50</b>Total Points</div><div class="stat"><b>60:00</b>Time Limit</div></div>
+</header>
+<div class="topline"><div><strong>Examination in progress</strong><div class="section-note">Your answers are saved as you work. You may navigate freely before submitting.</div></div><div id="timer" class="timer" role="timer" aria-live="off">60:00</div></div>
+<div class="progress-card">
+  <div class="progress-meta"><span id="answeredText">Answered: 0 / 50</span><span id="unansweredText">Unanswered: 50</span><strong id="percentText">0% complete</strong></div>
+  <div class="track"><div id="progressFill"></div></div>
+</div>
+<div id="examArea" class="layout">
+  <aside class="panel nav">
+    <h2>Question Navigation</h2>
+    <div id="navGrid" class="nav-grid" aria-label="Question navigation"></div>
+    <div class="legend"><span class="dot a"></span>Answered <span class="dot c"></span>Current <span class="dot"></span>Unanswered</div>
+    <p class="section-note">Part I: Questions 1–30 (Multiple Choice)<br>Part II: Questions 31–50 (True or False)</p>
+    <button id="submitSide" class="btn primary" style="width:100%;margin-top:8px">Submit Examination</button>
+  </aside>
+  <main class="panel question">
+    <div id="qKicker" class="kicker"></div>
+    <h2 id="qNumber">Question 1 of 50</h2>
+    <p id="qText" class="qtext"></p>
+    <div id="choices" class="choices"></div>
+    <div class="controls"><button id="prevBtn" class="btn">← Previous</button><button id="submitBtn" class="btn danger">Submit Examination</button><button id="nextBtn" class="btn primary">Next →</button></div>
+    <div class="section-note">Select one answer. You can change it any time before final submission.</div>
+  </main>
+</div>
+<section id="results" class="panel hidden" aria-live="polite"></section>
+<footer>Android Development Finals Examination · Maximum score: 50 points</footer>
+</div>
+<div id="confirmModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+ <div class="modal"><h2 id="confirmTitle">Submit your examination?</h2><p id="confirmSummary"></p><p>Once submitted, your answers cannot be changed. The result will be sent to Examora.</p><div class="modal-actions"><button id="cancelSubmit" class="btn">Go Back</button><button id="confirmSubmit" class="btn primary">Confirm Submission</button></div></div>
+</div>
+<script>
+"use strict";
+const questions = [
+{type:"mc",q:"Which Android input control allows users to select an option from a predefined dropdown list?",a:"Spinner",e:"A Spinner displays a dropdown menu containing selectable options.",o:["Spinner","AutoCompleteTextView","RadioButton","ListView"]},
+{type:"mc",q:"In Android development, which component is primarily responsible for displaying visual elements and handling user interface events?",a:"View",e:"A View represents a UI element that can be drawn on the screen and can receive user interaction events.",o:["View","Activity","Intent","Service"]},
+{type:"mc",q:"Which Activity lifecycle method is called when another Activity partially or completely appears in front of the current Activity?",a:"onPause()",e:"onPause() is called when an Activity loses foreground focus, such as when another Activity appears.",o:["onPause()","onStop()","onDestroy()","onRestart()"]},
+{type:"mc",q:"Which section of Android Studio displays information about the IDE's current status and ongoing operations?",a:"Status Bar",e:"The Status Bar displays IDE status information, including background operations and other development indicators.",o:["Status Bar","Toolbar","Project Window","Editor Window"]},
+{type:"mc",q:"Why is RecyclerView generally preferred over ListView when implementing complex and dynamic lists?",a:"It supports efficient view recycling and flexible layout management.",e:"RecyclerView reuses item views to improve performance and supports different layout managers.",o:["It supports efficient view recycling and flexible layout management.","It automatically stores all list data in a database.","It eliminates the need for adapters.","It can display only static text items."]},
+{type:"mc",q:"Which Android View is specifically designed to display a vertically scrollable collection of items using an adapter?",a:"ListView",e:"ListView displays a scrollable list of items supplied by an adapter.",o:["ListView","GridLayout","ScrollView","FrameLayout"]},
+{type:"mc",q:"Which Android layout or View component is designed to display web pages and HTML content inside an application?",a:"WebView",e:"WebView allows an application to display web content without opening an external browser.",o:["WebView","TextView","ImageView","SurfaceView"]},
+{type:"mc",q:"Which event listener is used to detect a simple click on a View?",a:"OnClickListener",e:"OnClickListener responds when the user performs a click action on a View.",o:["OnClickListener","OnLongClickListener","OnTouchListener","OnFocusChangeListener"]},
+{type:"mc",q:"Which Android application component receives and responds to system-wide broadcast messages, such as battery status changes?",a:"BroadcastReceiver",e:"BroadcastReceiver listens for and responds to broadcast announcements from the system or other applications.",o:["BroadcastReceiver","ContentProvider","Activity","Service"]},
+{type:"mc",q:"Which sequence of Activity lifecycle methods is normally executed when an Android Activity is launched for the first time?",a:"onCreate() → onStart() → onResume()",e:"The Activity is initialized, becomes visible, and then enters the foreground where the user can interact with it.",o:["onCreate() → onStart() → onResume()","onStart() → onCreate() → onPause()","onResume() → onCreate() → onStart()","onCreate() → onPause() → onStop()"]},
+{type:"mc",q:"Which Android layout positions child elements in relation to the parent or other child elements?",a:"RelativeLayout",e:"RelativeLayout positions Views based on relationships with the parent container or other Views.",o:["RelativeLayout","LinearLayout","FrameLayout","TableLayout"]},
+{type:"mc",q:"Which Android component provides a standardized interface for managing and sharing application data between different applications?",a:"ContentProvider",e:"ContentProvider manages data access and allows controlled data sharing between applications.",o:["ContentProvider","BroadcastReceiver","Service","Activity"]},
+{type:"mc",q:"Which Android UI control allows users to enter and edit text information?",a:"EditText",e:"EditText is an editable text field used to receive user input.",o:["EditText","TextView","Button","Spinner"]},
+{type:"mc",q:"Android touch mode allows users to interact with interface elements without requiring which traditional input method?",a:"Keyboard navigation",e:"Touch mode allows users to interact directly with Views through touch instead of relying on keyboard or directional navigation.",o:["Keyboard navigation","Internet connectivity","A display screen","Application permissions"]},
+{type:"mc",q:"Which Android layout is designed to display child Views in a stack, allowing them to overlap?",a:"FrameLayout",e:"FrameLayout places child Views within a single frame, allowing them to overlap.",o:["FrameLayout","LinearLayout","RelativeLayout","GridLayout"]},
+{type:"mc",q:"Which Android layout arranges its child Views in a single horizontal or vertical direction?",a:"LinearLayout",e:"LinearLayout arranges its child elements sequentially in either a horizontal or vertical orientation.",o:["LinearLayout","FrameLayout","RelativeLayout","ConstraintLayout"]},
+{type:"mc",q:"Which callback method is implemented when using the OnClickListener interface?",a:"onClick()",e:"The onClick(View v) callback is invoked when the user clicks the associated View.",o:["onClick()","onLongClick()","onTouch()","onCreate()"]},
+{type:"mc",q:"Which Android component represents an individual screen that provides a user interface for interaction?",a:"Activity",e:"An Activity represents a screen where users can interact with application content.",o:["Activity","Service","BroadcastReceiver","ContentProvider"]},
+{type:"mc",q:"Which Activity lifecycle method is called first when a new Activity instance is created?",a:"onCreate()",e:"onCreate() initializes the Activity, including its interface and necessary resources.",o:["onCreate()","onStart()","onResume()","onPause()"]},
+{type:"mc",q:"Which Android component can display a notification to inform users about application events even when the application is not currently visible?",a:"Notification",e:"Notifications provide information and alerts outside the application's active user interface.",o:["Notification","Toast","Snackbar","Dialog"]},
+{type:"mc",q:"Which directory in an Android Studio project contains XML layout resource files?",a:"res/layout",e:"The res/layout directory stores XML files that define application user interfaces.",o:["res/layout","src/main/java","assets/layout","build/classes"]},
+{type:"mc",q:"Which event listener detects when a user presses and holds a View for an extended period?",a:"OnLongClickListener",e:"OnLongClickListener detects a long-press interaction. The exact duration depends on the system's long-press timeout.",o:["OnLongClickListener","OnClickListener","OnTouchListener","OnKeyListener"]},
+{type:"mc",q:"Which of the following is an example of a hybrid Android UI widget that combines selection and text-entry functionality?",a:"AutoCompleteTextView",e:"AutoCompleteTextView accepts text input while displaying suggested options as the user types.",o:["AutoCompleteTextView","Spinner","TextView","CheckBox"]},
+{type:"mc",q:"Which Android control allows users to enable or disable a setting through a sliding interface?",a:"Switch",e:"Switch provides an ON/OFF control for binary settings.",o:["Switch","SeekBar","ProgressBar","RadioButton"]},
+{type:"mc",q:"What is the primary purpose of Intents in Android application development?",a:"To request actions and facilitate communication between Android components.",e:"Intents are messaging objects used to start Activities, start Services, and deliver broadcast messages.",o:["To request actions and facilitate communication between Android components.","To define the visual appearance of every View.","To store application data permanently.","To compile Java source code into resources."]},
+{type:"mc",q:"Which official integrated development environment (IDE) is primarily used for Android application development?",a:"Android Studio",e:"Android Studio is Google's official IDE for Android application development.",o:["Android Studio","Visual Studio Code","Eclipse IDE","Xcode"]},
+{type:"mc",q:"Which Android UI component visually indicates the progress of an ongoing operation?",a:"ProgressBar",e:"ProgressBar displays the progress of a task, either through a determinate or indeterminate indicator.",o:["ProgressBar","SeekBar","Switch","RatingBar"]},
+{type:"mc",q:"Which Activity lifecycle callback is invoked when an Activity becomes visible to the user but has not yet entered the fully interactive foreground state?",a:"onStart()",e:"onStart() is called when the Activity becomes visible. It is followed by onResume() when the Activity enters the foreground.",o:["onStart()","onResume()","onPause()","onStop()"]},
+{type:"mc",q:"In an application with user authentication, which category of functionality does the Forgot Password feature belong to?",a:"Authentication and Account Recovery",e:"Forgot Password allows users to recover access to their accounts by resetting their credentials.",o:["Authentication and Account Recovery","User Interface Customization","Database Synchronization","Application Navigation"]},
+{type:"mc",q:"Which Android application component is designed to perform operations in the background without requiring a user interface?",a:"Service",e:"A Service performs operations without providing a user interface. However, it is not automatically a separate background thread; long-running work must follow Android's background execution requirements.",o:["Service","Activity","View","Fragment"]}
+];
+const tf = [
+["An Activity represents one screen of an Android app.",true],
+["onTouch() handles movement gestures or press-release actions.",true],
+["A Service can run in the background even if the user is using another app.",true],
+["EditText is used for inputting text.",true],
+["RelativeLayout arranges items in rows and columns.",false],
+["Touch mode requires focusing on a widget before interacting.",false],
+["Event handlers perform the action in response to an event.",true],
+["Content Providers manage access to shared application data.",true],
+["onClickListener triggers after a long press.",false],
+["createUserWithEmailAndPassword() is used for user registration.",true],
+["The res folder contains Java source files.",false],
+["A TextView is used for displaying text to the user.",true],
+["LinearLayout arranges views horizontally or vertically.",true],
+["Intents can be used to move from one Activity to another.",true],
+["FrameLayout places views on top of each other.",true],
+["RecyclerView is more flexible than ListView.",true],
+["Android Studio is based on IntelliJ IDEA.",true],
+["onDestroy() is always called when the user closes an app.",false],
+["Firebase Authentication is mainly used for UI animations.",false],
+["signInWithEmailAndPassword() handles user login.",true]
+];
+tf.forEach(([q,a])=>questions.push({type:"tf",q,a:a?"TRUE":"FALSE",o:["TRUE","FALSE"],e:""}));
+const total=questions.length, answers=Array(total).fill(null);
+let current=0,remaining=3600,hasSubmitted=false,startedAt=Date.now(),timerId=null,finalScore=0;
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+questions.forEach(q=>{q.options=shuffle(q.o.map((label,i)=>({id:label===q.a?"correct":"wrong"+i,label})));});
+const $=id=>document.getElementById(id);
+function renderNav(){ $("navGrid").innerHTML="";questions.forEach((q,i)=>{const b=document.createElement("button");b.className="navbtn"+(answers[i]!==null?" answered":"")+(i===current?" current":"");b.textContent=i+1;b.setAttribute("aria-label",`Go to question ${i+1}${answers[i]!==null?", answered":", unanswered"}`);b.addEventListener("click",()=>go(i));$("navGrid").appendChild(b);});}
+function updateProgress(){const n=answers.filter(x=>x!==null).length;$("answeredText").textContent=`Answered: ${n} / ${total}`;$("unansweredText").textContent=`Unanswered: ${total-n}`;$("percentText").textContent=`${Math.round(n/total*100)}% complete`;$("progressFill").style.width=(n/total*100)+"%";renderNav();}
+function renderQuestion(){const q=questions[current];$("qKicker").textContent=q.type==="mc"?"Part I · Multiple Choice":"Part II · True or False";$("qNumber").textContent=`Question ${current+1} of ${total}`;$("qText").textContent=q.q;$("choices").innerHTML="";q.options.forEach(opt=>{const label=document.createElement("label");label.className="choice"+(answers[current]===opt.id?" selected":"");const input=document.createElement("input");input.type="radio";input.name="answer";input.value=opt.id;input.checked=answers[current]===opt.id;input.addEventListener("change",()=>{if(hasSubmitted)return;answers[current]=opt.id;renderQuestion();updateProgress();});const span=document.createElement("span");span.textContent=opt.label;label.append(input,span);$("choices").appendChild(label);});$("prevBtn").disabled=current===0;$("nextBtn").disabled=current===total-1;renderNav();}
+function go(i){if(hasSubmitted)return;current=Math.max(0,Math.min(total-1,i));renderQuestion();}
+function clock(){const m=Math.floor(remaining/60),s=remaining%60;$("timer").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");$("timer").classList.toggle("warn",remaining<=300);if(remaining<=0){clearInterval(timerId);submitExam(true);return;}remaining--;}
+function requestSubmit(){if(hasSubmitted)return;const n=answers.filter(x=>x!==null).length;$("confirmSummary").textContent=`You have answered ${n} question(s) and left ${total-n} unanswered.`;$("confirmModal").classList.remove("hidden");$("confirmSubmit").focus();}
+function calculateScore(){return questions.reduce((sum,q,i)=>sum+(answers[i]!==null&&q.options.find(o=>o.id===answers[i])?.label===q.a?1:0),0);}
+function submitExam(auto=false){if(hasSubmitted)return;hasSubmitted=true;clearInterval(timerId);finalScore=calculateScore();const elapsed=3600-remaining;try{window.parent.postMessage({type:'EXAMORA_SUBMIT',payload:{score:finalScore,maxScore:50,completed:true}},'*');}catch(err){console.error("Examora submission message failed:",err);} $("confirmModal").classList.add("hidden");$("examArea").classList.add("hidden");const correct=finalScore,answered=answers.filter(x=>x!==null).length,incorrect=answered-correct,unanswered=total-answered;$("results").classList.remove("hidden");$("results").innerHTML=`<div class="kicker">${auto?"Time expired · ":""}Examination submitted</div><h2>Examination Results</h2><div class="result-score">${finalScore} / 50</div><div>${(finalScore/50*100).toFixed(1)}% score</div><div class="result-grid"><div class="result-tile"><b>${correct}</b>Correct</div><div class="result-tile"><b>${incorrect}</b>Incorrect</div><div class="result-tile"><b>${unanswered}</b>Unanswered</div><div class="result-tile"><b>${formatDuration(elapsed)}</b>Duration</div></div><p><strong>Completion status:</strong> Submitted ${auto?"automatically because the timer reached zero.":"successfully."}</p><h2 style="margin-top:26px">Answer Review</h2><div id="reviewList"></div>`;const review=$("reviewList");questions.forEach((q,i)=>{const chosen=answers[i]===null?"Not answered":q.options.find(o=>o.id===answers[i])?.label;const ok=chosen===q.a;const item=document.createElement("article");item.className="review-item";const h=document.createElement("h3");h.textContent=`${i+1}. ${q.q}`;const p1=document.createElement("p");p1.textContent="Your answer: "+chosen;const p2=document.createElement("p");p2.textContent="Correct answer: "+q.a;const p3=document.createElement("p");p3.className=ok?"correct":"incorrect";p3.textContent=ok?"Correct":"Incorrect";item.append(h,p1,p2,p3);if(q.e){const ex=document.createElement("div");ex.className="explanation";ex.textContent="Explanation: "+q.e;item.appendChild(ex);}review.appendChild(item);});window.scrollTo({top:0,behavior:"smooth"});}
+function formatDuration(seconds){return `${Math.floor(seconds/60)}m ${seconds%60}s`;}
+$("prevBtn").addEventListener("click",()=>go(current-1));$("nextBtn").addEventListener("click",()=>go(current+1));$("submitBtn").addEventListener("click",requestSubmit);$("submitSide").addEventListener("click",requestSubmit);$("cancelSubmit").addEventListener("click",()=>$("confirmModal").classList.add("hidden"));$("confirmSubmit").addEventListener("click",()=>submitExam(false));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("confirmModal").classList.add("hidden");});
+updateProgress();renderQuestion();clock();timerId=setInterval(clock,1000);
+</script>
+</body>
+</html>
